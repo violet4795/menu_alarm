@@ -21,25 +21,20 @@ rl.question('Whats up ID를 입력하세요: ', (id) => {
     });
 });
 
+
 function maskedInput(prompt, callback) {
-    const maskRl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-        terminal: true
-    });
+    rl.stdoutMuted = true;
 
-    maskRl.stdoutMuted = true;
-
-    maskRl._writeToOutput = function _writeToOutput(stringToWrite) {
-        if (maskRl.stdoutMuted) {
-            maskRl.output.write('\x1B[2K\x1B[200D' + prompt + '*'.repeat(maskRl.line.length));
+    rl._writeToOutput = function _writeToOutput(stringToWrite) {
+        if (rl.stdoutMuted) {
+            rl.output.write('\x1B[2K\x1B[200D' + prompt + '*'.repeat(rl.line.length));
         } else {
-            maskRl.output.write(stringToWrite);
+            rl.output.write(stringToWrite);
         }
     };
 
-    maskRl.question(prompt, function (input) {
-        maskRl.close();
+    rl.question(prompt, function (input) {
+        rl.close();
         callback(input);
     });
 }
