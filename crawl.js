@@ -3,6 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 const path = require('path');
 
+// 엑셀 다운로드 페이지
 const DOWNLOAD_PATH = 'downloads'
 // 복리후생 페이지 aTag리스트 셀렉터
 const WELFARE_BENEFIT_BOARD_LIST_SELECTOR = '#content > div.board_lst > table > tbody > tr > td.tit > a'
@@ -10,10 +11,13 @@ const WELFARE_BENEFIT_BOARD_LIST_SELECTOR = '#content > div.board_lst > table > 
 const FOODLIST_DOWNLOAD_BUTTON_SELECTOR = '#lyFileShow > ul > li > a'
 // 주간메뉴 페이지 첨부파일 버튼 셀렉터
 const ADDFILE_BUTTON_SELECTOR = '.addfile'
+// 복리후생 페이지 url
+const WELFARE_PAGE_URL = 'https://whatsup.nhnent.com/ne/board/list/1560'
 
 // TODO 로그인 실패 시 처리
 async function crawl(whatsupId, whatsupPw) {
     // 가상 브라우져를 실행, headless: false를 주면 벌어지는 일을 새로운 창을 열어 보여준다(default: true)
+    // puptteer 세팅 후 시작
     const browser = await puppeteer.launch({
         headless: true,
         args: [
@@ -24,7 +28,6 @@ async function crawl(whatsupId, whatsupPw) {
     });
     const page = await browser.newPage();
 
-
     // headless: false일때 브라우져 크기 지정해주는 코드
     await page.setViewport({
         width: 1366,
@@ -32,18 +35,20 @@ async function crawl(whatsupId, whatsupPw) {
     });
 
     // whatsup 페이지로 
-    await page.goto('https://whatsup.nhnent.com/ne/board/list/1560');
-    
-    // 로그인
-    await page.evaluate((id, pw) => {
-        document.querySelector('#username').value = id
-        document.querySelector('#password').value = pw
-    }, whatsupId, whatsupPw)
+    await page.goto(WELFARE_PAGE_URL);
 
-    await page.click('#login-button')
+    // 로그인
+    const isSuccessLogin = await login(page, whatsupId, whatsupPw)
+
+    if (typeof isSuccessLogin === 'string') {
+        const err = new Error(isSuccessLogin)
+        err.name = 'login-fail'
+        await browser.close();
+        throw err
+    }
 
     // 로그인 후 복리후생 1페이지로
-    await page.goto('https://whatsup.nhnent.com/ne/board/list/1560');
+    await page.goto(WELFARE_PAGE_URL);
 
     // 1페이지 10개 a tag 중 
     const content = await page.content();
@@ -52,10 +57,15 @@ async function crawl(whatsupId, whatsupPw) {
 
     // 이번주식단 판별
     const thisWeekATag = weekMenuFinder(aList)
-    if (thisWeekATag === null) return null
+    if (thisWeekATag === null) {
+        const err = new Error('금주 식단 검색에 실패했습니다.')
+        err.name = 'search-fail'
+        await browser.close();
+        throw err
+    }
 
     // 식단 element에게서 selector 추출
-    let elementSelector = getElementSelector(thisWeekATag)
+    const elementSelector = getElementSelector(thisWeekATag)
 
     // 화면이동을 클릭이벤트로 이동할것이기 때문에, 화면 로딩을 기다려줄 이벤트 장치 설치
     const navigationPromise = page.waitForNavigation({ waitUntil: 'load' });
@@ -144,6 +154,29 @@ function getElementSelector(element) {
     return path.join(' > ');
 }
 
+async function login(page, id, pw) {
+
+    // 로그인 실패 
+    page.on('dialog', async dialog => {
+        const message = dialog.message()
+        await dialog.accept();
+        return message;
+    });
+
+    // 클릭 후에도 sign-in이 url에 남아있다면 실패
+    page.on('framenavigated', async (frame) => {
+        const successFlag = frame.url().indexOf('sign-in') < 0
+        console.log(successFlag)
+        if (successFlag) return true
+    });
+
+    await page.evaluate((id, pw) => {
+        document.querySelector('#username').value = id
+        document.querySelector('#password').value = pw
+    }, id, pw)
+    await page.click('#login-button')
+
+}
 
 //날짜값 구하기
 function weekMenuFinder(aList) {

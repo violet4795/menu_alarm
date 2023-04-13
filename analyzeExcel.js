@@ -33,12 +33,7 @@ function analyzeExcel({filePath, fileName}) {
     const baseRowEntries = Object.entries(baseRow)
     const mealAttr = baseRowEntries.find(e => e[1] === '구분')[0]
     const courseAttr = baseRowEntries.find(e => e[1] === '코스')[0]
-    const weekAttrs = {
-        monAttr: baseRowEntries.find(e => e[1] === '월')[0],
-        tueAttr: baseRowEntries.find(e => e[1] === '화')[0],
-        wenAttr: baseRowEntries.find(e => e[1] === '수')[0],
-        thuAttr: baseRowEntries.find(e => e[1] === '목')[0],
-        friAttr: baseRowEntries.find(e => e[1] === '금')[0],
+    const attrToWeek = {
         [baseRowEntries.find(e => e[1] === '월')[0]]: '월',
         [baseRowEntries.find(e => e[1] === '화')[0]]: '화',
         [baseRowEntries.find(e => e[1] === '수')[0]]: '수',
@@ -56,7 +51,7 @@ function analyzeExcel({filePath, fileName}) {
         // 각 요일에 해당하는 점심 데이터를 찾아서 정렬된 배열에 추가합니다.
         data.filter(row => row[dayColumn] && row[mealAttr] === "점심").forEach(lunchRow => {
             let findData = sortedData.find(e => 
-                e.day == weekAttrs[dayColumn] &&
+                e.day == attrToWeek[dayColumn] &&
                 e.meal == lunchRow[mealAttr] &&
                 e.course == lunchRow[courseAttr] 
             )
@@ -64,7 +59,7 @@ function analyzeExcel({filePath, fileName}) {
                 findData.menu += ', ' + lunchRow[dayColumn]
             }else{
                 sortedData.push({
-                    day: weekAttrs[dayColumn],
+                    day: attrToWeek[dayColumn],
                     meal: lunchRow[mealAttr],
                     course: lunchRow[courseAttr],
                     menu: lunchRow[dayColumn]
@@ -75,7 +70,7 @@ function analyzeExcel({filePath, fileName}) {
         // 각 요일에 해당하는 저녁 데이터를 찾아서 정렬된 배열에 추가합니다.
         data.filter(row => row[dayColumn] && row[mealAttr] === "저녁").forEach(lunchRow => {
             let findData = sortedData.find(e => 
-                e.day == weekAttrs[dayColumn] &&
+                e.day == attrToWeek[dayColumn] &&
                 e.meal == lunchRow[mealAttr] &&
                 e.course == lunchRow[courseAttr] 
             )
@@ -83,7 +78,7 @@ function analyzeExcel({filePath, fileName}) {
                 findData.menu += ', ' + lunchRow[dayColumn]
             }else{
                 sortedData.push({
-                    day: weekAttrs[dayColumn],
+                    day: attrToWeek[dayColumn],
                     meal: lunchRow[mealAttr],
                     course: lunchRow[courseAttr],
                     menu: lunchRow[dayColumn]

@@ -7,7 +7,7 @@
     "start": "nvm use && node app.js"
   },
   "engines": {
-    "node": "18.15.0"
+    "node": "18.x"
   },
   "keywords": [],
   "author": "",

@@ -16,6 +16,7 @@ const rl = readline.createInterface({
 
 rl.question('Whats up ID를 입력하세요: ', (id) => {
     maskedInput('Whats up PW를 입력하세요: ', (pw) => {
+        console.log('\n')
         main(id, pw, weebHookURL)
         rl.close();
     });
@@ -47,20 +48,21 @@ function maskedInput(prompt, callback) {
 // TODO console.log to logging
 
 
-
-
-
-
 async function main(id, pw, weebHookURL) {
     // 배치 실행
     let crawlResult = null
     try {
         crawlResult = await crawl(id, pw)
     } catch (e) {
-        //TODO 에러처리...
+        if(e.name === 'login-fail') {
+            console.error(e.message)
+            return;
+        }
+        if(e.name === 'search-fail') {
+            console.error(e.message)
+            return;
+        }
     }
-
-    if (!crawlResult) return;
 
     const weekMenu = analyzeExcel(crawlResult)
 

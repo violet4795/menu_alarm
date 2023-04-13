@@ -14,7 +14,7 @@ Util.getMealTimeText = () => {
     const currentHour = now.getHours();
     const lunchHour = 12;
     const dinnerHour = 18;
-    const range = 1; // 시간이 몇 시간 이내에 있는지 확인할 범위입니다.
+    const range = 2; // 시간이 몇 시간 이내에 있는지 확인할 범위입니다.
 
     if (isNear(lunchHour, currentHour, range)) {
         return '점심';
