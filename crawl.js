@@ -188,7 +188,7 @@ function weekMenuFinder(aList) {
         if (data.indexOf('주간메뉴') === -1) return // 주간메뉴가 아니면 다음꺼
         const dateRange = data.split('주간메뉴')[1].replaceAll(/[()]/g, '').split('~')
         const firstDate = new Date(`${year}.${dateRange[0]}`) // 04.10 or 4.10
-        const lastDate = new Date(`${year}.${dateRange[1]}`)
+        const lastDate = new Date(`${year}.${dateRange[1]} 23:59:59`)
         if (firstDate <= today && today <= lastDate) result = aTag
 
     })
