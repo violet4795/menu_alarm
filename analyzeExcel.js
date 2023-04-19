@@ -2,7 +2,7 @@ const XLSX = require('xlsx');
 
 function analyzeExcel({filePath, fileName}) {
     let workbook = null
-    filePath.replace('.crdownload','')
+    // filePath.replace('.crdownload','')
     workbook = XLSX.readFile(filePath);
 
     const targetSheetName = '칼로리및알레르기공시'

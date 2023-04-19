@@ -47,6 +47,7 @@ async function crawl(whatsupId, whatsupPw) {
         throw err
     }
 
+
     // 로그인 후 복리후생 1페이지로
     await page.goto(WELFARE_PAGE_URL);
 
@@ -76,11 +77,16 @@ async function crawl(whatsupId, whatsupPw) {
     // 뜰때까지 기다림
     await navigationPromise
 
-    // 다운로드 경로 설정
+    
     const downloadPath = path.resolve(__dirname, DOWNLOAD_PATH);
+    // 다운로드 전에 폴더 비우기
+    deleteFilesInFolder(downloadPath);
+
+    // 다운로드 경로 설정
     if (!fs.existsSync(downloadPath)) {
         fs.mkdirSync(downloadPath);
     }
+
 
     // 다운로드 권한 및 경로 설정
     const client = await page.target().createCDPSession();
@@ -107,6 +113,18 @@ async function crawl(whatsupId, whatsupPw) {
 
 };
 
+function deleteFilesInFolder(folderPath) {
+    // 폴더 내의 파일 목록을 가져옵니다.
+    const files = fs.readdirSync(folderPath);
+
+    // 각 파일을 삭제합니다.
+    for (const file of files) {
+        const filePath = path.join(folderPath, file);
+        // 파일을 삭제합니다.
+        fs.unlinkSync(filePath);
+    }
+}
+
 async function waitForFileInDirectory(directory) {
     return new Promise((resolve) => {
         const interval = setInterval(() => {
@@ -116,8 +134,11 @@ async function waitForFileInDirectory(directory) {
                     return;
                 }
                 if (files.length > 0) {
-                    clearInterval(interval);
-                    resolve(files[0]);
+                    if (files[0].indexOf('crdownload') === -1) {
+                        clearInterval(interval);
+                        resolve(files[0]);
+                    }
+                    // count ++; // TODO 10번정도? 5초 이상 안되면 에러처리 추가
                 }
             });
         }, 500);
