@@ -27,7 +27,7 @@ Util.getMealTimeText = () => {
 
 Util.menuToText = (menu) => {
     return menu.reduce((prev, curr) => {
-        return prev += `${curr.course}: ${curr.menu} \n`
+        return prev += `${curr.course} : \n ${curr.menu} \n\n`
     }, '')
 }
 

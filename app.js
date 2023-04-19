@@ -79,7 +79,7 @@ async function main(id, pw, weebHookURL) {
         process.exit();
     });
 
-    // 매일 오전 11시 30분에 작업을 실행합니다.
+    // 월-금 오전 11시 30분에 작업을 실행합니다.
     const scheduledJob = cron.schedule('30 11 * * 1-5', () => {
         const meal = Util.getMealTimeText() // 점심 or 저녁
         const todayMenu = Util.mealFilter(weekMenu, meal)

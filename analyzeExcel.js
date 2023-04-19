@@ -4,7 +4,7 @@ function analyzeExcel({filePath, fileName}) {
     let workbook = null
     filePath.replace('.crdownload','')
     workbook = XLSX.readFile(filePath);
-    
+
     const targetSheetName = '칼로리및알레르기공시'
     // const downloadPath = path.resolve(__dirname, DOWNLOAD_PATH);
     
@@ -59,7 +59,7 @@ function analyzeExcel({filePath, fileName}) {
                 e.course == lunchRow[courseAttr] 
             )
             if(findData) {
-                findData.menu += ', ' + lunchRow[dayColumn]
+                findData.menu += '\n' + lunchRow[dayColumn]
             }else{
                 sortedData.push({
                     day: attrToWeek[dayColumn],
@@ -78,7 +78,7 @@ function analyzeExcel({filePath, fileName}) {
                 e.course == lunchRow[courseAttr] 
             )
             if(findData) {
-                findData.menu += ', ' + lunchRow[dayColumn]
+                findData.menu += '\n' + lunchRow[dayColumn]
             }else{
                 sortedData.push({
                     day: attrToWeek[dayColumn],
